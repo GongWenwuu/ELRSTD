@@ -1,0 +1,12 @@
+load('Cloth.mat');
+dense_tensor = 255*X;
+sample_ratio = 0.1;
+sample_num = round(sample_ratio*numel(dense_tensor));
+idx = 1:numel(dense_tensor);
+mask = sort(randperm(length(idx),sample_num));
+Omega = zeros(size(dense_tensor)); Omega(mask) = 1; Omega = boolean(Omega);
+sparse_tensor = Omega.*dense_tensor;
+[ps0, ssim0] = QA3D(dense_tensor, sparse_tensor);
+Opts = Initial_Para(300,size(dense_tensor),'lrstd',0.5,1,1e-4); Opts.weight = 'sum'; Opts.flag = [1,1,1]; Opts.prior = 'stdc';
+[est_tensor, ~, info] = LADM_LRSTD(dense_tensor,Omega,Opts); 
+[psnr1, ssim1] = QA3D(dense_tensor, est_tensor);
